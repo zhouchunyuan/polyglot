@@ -5,9 +5,9 @@ import time
 import random
 import genanki
 from datetime import datetime
+
 class AnkiPackage:
-    def __init__(self,pkgPath,deckName):
-        self.anki_folder = pkgPath;
+    def __init__(self,deckName):
         self.model_id = random.randrange(1 << 30, 1 << 31)
         self.deck_id = random.randrange(1 << 30, 1 << 31)
         self.model = genanki.Model(self.model_id , deckName,
@@ -34,16 +34,16 @@ class AnkiPackage:
         self.deck.add_note(note)
     def save(self):
         date = datetime.now().strftime("%Y%m%d%H%M%S")
-        anki_questions_file = self.anki_folder + f"anki_question{date}.apkg"
+        anki_questions_file = f"anki_question{date}.apkg"
         self.package.write_to_file(anki_questions_file)
-anki_folder = 'C:/Users/f3412/Desktop/anki/'
-myAnki = AnkiPackage(anki_folder, 'test')
+
+myAnki = AnkiPackage('test')
 
 my_sheet = 'Saved translations' # change it to your sheet name, you can find your sheet name at the bottom left of your excel file
-file_name = 'C:\\Users\\f3412\\Desktop\\'+my_sheet+'.xlsx' # change it to the name of your excel file
+file_name = my_sheet+'.xlsx' # change it to the name of your excel file
 df = read_excel(file_name, sheet_name = my_sheet)
 #print(df.head()) # shows headers with top 5 rows
-df = df.sample(frac=0.02)
+df = df.sample(frac=0.01)
 print(len(df))
 for i in range(len(df)):
     czTxt=''
@@ -65,39 +65,15 @@ for i in range(len(df)):
             oLang='zh'
     print(czTxt)        
     czSnd = Speech(czTxt, 'cs')
-    czSnd.save(myAnki.anki_folder + f"{i}snd.mp3")
+    czSndFile = f"{i}snd.mp3"
+    czSnd.save(czSndFile)
     czSnd.play()
-    
-    # time.sleep(3)
+
     oSnd = Speech(oTxt, oLang)
-    oSnd.save(myAnki.anki_folder + f"{i}asnd.mp3")
+    oSndFile = f"{i}asnd.mp3"
+    oSnd.save(oSndFile)
     oSnd.play()
-    # time.sleep(3)
-    # czSnd.play()#for review
-    # time.sleep(2)
     
-    question = czTxt
-    questionSnd = myAnki.anki_folder + f"{i}snd.mp3"
-    ankiAnswer = oTxt
-    answerSound = myAnki.anki_folder + f"{i}asnd.mp3"
-    myAnki.add(question,questionSnd,ankiAnswer,answerSound)
-    
-
-    
-#print(df.iat[0,1])
-
-# say "Hello World"
-text = "练习结束，白白了。"
-lang = "zh"
-speech = Speech(text, lang)
-speech.play()
-
+    myAnki.add(czTxt,czSndFile,oTxt,oSndFile)
 
 myAnki.save()
-
-# you can also apply audio effects while playing (using SoX)
-# see http://sox.sourceforge.net/sox.html#EFFECTS for full effect documentation
-#sox_effects = ("speed", "0.5")
-#speech.play(sox_effects)
-
-        
