@@ -58,6 +58,7 @@ for j in range((int)(len(df)/AnkiPackageSize)+1):
         if(rowIndex >= len(df)):break
         for qa in range(2): #loop over Q&A  
             txtType = df.iloc[rowIndex, qa]
+            print(txtType)
             txt = df.iloc[rowIndex, 2+qa] 
             if(txtType == '捷克语' or txtType == 'Czech'):
                 czTxt=txt
@@ -65,7 +66,7 @@ for j in range((int)(len(df)/AnkiPackageSize)+1):
             if(txtType == '英语' or txtType == 'English'):
                 oTxt=txt
                 oLang='en'
-            if(txtType == '中文（简体）' or txtType == 'Chinese (Simplified)' ):
+            if(txtType == '中文（简体）' or txtType == 'Chinese (Simplified)'or txtType == 'Chinese' ):
                 oTxt=txt
                 oLang='zh'
         print(f'{rowIndex}:'+czTxt)
