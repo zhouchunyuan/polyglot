@@ -1,0 +1,71 @@
+import random
+import genanki
+import docx
+import re
+
+pattern = r'([a-zA-Z&\s/\.]+\.)' # find ['vt.', ' vi./n.', ' n.', ' adj.', ' v. aux.', ' modal v.', ' n.']
+
+class AnkiPackage:
+    def __init__(self,deckName,packageNumber):
+        self.model_id = random.randrange(1 << 30, 1 << 31)
+        self.deck_id = random.randrange(1 << 30, 1 << 31)
+        self.model = genanki.Model(self.model_id , deckName,
+          fields=[
+            {'name': 'Question'},
+            {'name': 'Answer'},
+            {'name': 'Example'},
+          ],
+          templates=[
+            {
+              'name': 'Card type 1',
+              'qfmt': '<style> div {text-align: center;font-size:30px;}</style><div>{{Question}}</div>',
+              'afmt': '{{FrontSide}}{{Answer}}<br>{{Example}}',
+            },
+          ])
+        self.deck = genanki.Deck(self.deck_id, deckName)
+        self.package = genanki.Package(self.deck)
+        self.package.media_files = []
+        self.file_name = f"C:/Users/f3412/Desktop/out/{deckName}_{packageNumber}.apkg"
+    def add(self,question,ankiAnswer,ankiExample):
+        note = genanki.Note(model=self.model,fields=[f'{question}', f'{ankiAnswer}',f'{ankiExample}'])
+        self.deck.add_note(note)
+    def save(self):
+        #date = datetime.now().strftime("%Y%m%d%H%M%S")
+        self.package.write_to_file(self.file_name)
+
+
+
+path = 'C:/Users/f3412/Desktop/C-393.docx'
+doc = docx.Document(path)
+
+# Assuming the table is the first element in the document
+table = doc.tables[0]
+
+# Iterate over rows and cells to extract text
+myAnki = AnkiPackage('myEnglishWords',1)
+
+for row in table.rows:
+    q = row.cells[1].text.strip() # use chinese as questions
+    ###################### 查找所有词性 #################################
+    matches = re.findall(pattern, q)
+    # Find positions of these matches
+    positions = [m.span() for m in re.finditer(pattern, q)]
+    # Extract in-between segments
+    in_between = []
+    start = positions[0][1] if positions else 0  # Start after the first match
+    for pos in positions[1:]:  # Skip the first position
+        in_between.append(q[start:pos[0]])
+        start = pos[1]
+    # Add the last segment after the final match, if any
+    in_between.append(q[start:])
+    ###################### 查找所有词性 #################################
+    for n in range(len(matches)):
+        print(n)
+        print(matches[n])
+        print(in_between[n])
+        question = matches[n] + in_between[n] 
+        anwser = row.cells[0].text.strip() #
+        example = row.cells[2].text.strip()
+        myAnki.add(question,anwser,example)
+
+myAnki.save()
